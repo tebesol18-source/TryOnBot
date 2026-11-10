@@ -1,0 +1,33 @@
+# Faith-EL Virtual Stylist — Boutique configuration
+# Sprint 1: exactly ONE boutique is implemented (single-tenant design).
+# Multi-boutique support is intentionally out of scope for now.
+
+boutique:
+  id: faith-el-main            # internal unique identifier (slug)
+  name: "Faith-EL"
+  display_name: "Faith-EL Virtual Stylist"
+  locale: en
+  currency: USD
+  active: true                 # single boutique enabled by default
+
+# Telegram channel where try-on previews / announcements are published.
+# SAFETY RULE: channel monitoring stays DISABLED until a valid numeric
+# channel id is configured AND validated at runtime (see settings.yaml
+# policy.require_valid_ids_before_enable). null here means "not configured".
+channel:
+  id: null                     # e.g. -1001234567890 once the channel exists
+  username: null               # e.g. @faith_el_showroom (informational only)
+  monitoring_enabled: false    # MUST remain false while id is null
+
+# Boutique administrators (Telegram user ids allowed to trigger admin
+# functions such as manual deletion, retention overrides, catalog refresh).
+# SAFETY RULE: admin functions stay DISABLED until this list contains at
+# least one valid positive integer id AND policy validation passes.
+admins:
+  telegram_user_ids: []        # e.g. [123456789]
+  admin_functions_enabled: false  # MUST remain false while the list is empty
+
+# Product catalog source for this boutique (local file for now; no paid APIs).
+catalog:
+  source: local                # "local" only in Sprint 1
+  path: data/catalog/          # populated in a later sprint

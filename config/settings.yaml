@@ -1,0 +1,69 @@
+# Faith-EL Virtual Stylist — global application settings (Sprint 1 skeleton)
+
+app:
+  name: faith-el-virtual-stylist
+  version: 0.1.0
+  python_min_version: "3.11"
+  environment: development     # development | production
+
+telegram:
+  framework: aiogram           # approved architecture: aiogram 3.x
+  framework_version: ">=3.0,<4.0"
+  bot_token_env_var: BOT_TOKEN # read from .env ONLY; never hard-coded
+  # The bot must not start if BOT_TOKEN is empty/missing.
+
+storage:
+  base_dir: data               # all customer-related data stays local
+  photos_dir: data/photos      # originals downloaded only after consent
+  previews_dir: data/previews  # mock-generated previews
+  database_path: data/db/faith_el.sqlite   # used in a later sprint
+
+imagegen:
+  # IMPORTANT: the initial provider is a MOCK. It does NOT perform genuine
+  # virtual try-on. Every generated preview must be clearly labelled so no
+  # one mistakes it for a real try-on result.
+  provider: mock
+  providers_allowed: [mock]    # no paid APIs / GPU services permitted
+  label_mock_outputs: true
+  mock_output_label: "PREVIEW ONLY - mock image, not a real virtual try-on"
+
+privacy:
+  # Consent gate: customer photos may NOT be downloaded or processed until
+  # the customer has explicitly consented in-chat.
+  require_customer_consent_before_download: true
+  consent_scope:
+    download_photo: true       # explicit opt-in required per customer
+    process_photo: true        # generating previews also requires consent
+  # Customer photos must NEVER be used to train any model.
+  use_photos_for_model_training: false
+  training_data_prohibited: true
+
+retention:
+  # Default maximum local photo retention: 7 days.
+  max_local_retention_days: 7
+  cleanup_schedule_hours: 24   # background sweep interval (later sprint)
+  # Immediate deletion on customer request must be supported at all times.
+  immediate_deletion_on_request: true
+  # What deletion covers (all three must be removed together):
+  deletion_scope:
+    - original_photos          # data/photos/<customer>/...
+    - generated_previews       # data/previews/<customer>/...
+    - database_records         # rows referencing the customer's media
+  # Transparency note about the platform itself (outside our control):
+  telegram_retention_note: >
+    Telegram stores messages and media on its own servers according to
+    Telegram's policies. Our 7-day retention and on-request deletion apply
+    ONLY to locally stored copies (originals, previews, DB records). We
+    cannot guarantee deletion of copies retained by Telegram servers, cached
+    CDN copies, or content already forwarded/saved by other users.
+
+policy:
+  # Channel monitoring and admin functions must refuse to enable until
+  # valid, confirmed IDs are configured in boutique.yaml.
+  require_valid_ids_before_enable: true
+  single_boutique_only: true
+  no_paid_apis: true           # no paid APIs, GPU rental, subscriptions, hosting
+
+logging:
+  level: INFO                  # DEBUG in development when needed
+  redact_tokens: true          # never log BOT_TOKEN or photo contents
